@@ -9,27 +9,16 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --sidebar-bg: #1e2330;
-      --chat-bg: #f5f0ea;
-      --accent: #c9a96e;
-      --user-msg: #1c4a6e;
-      --dr-msg: #ffffff;
-      --text-dark: #1a1a1a;
-      --text-mid: #555;
-      --text-light: #999;
-      --border: #e0d8ce;
-      --shadow: 0 4px 24px rgba(0,0,0,0.10);
-      --radius: 18px;
+      --sidebar-bg: #1e2330; --chat-bg: #f5f0ea; --accent: #c9a96e;
+      --user-msg: #1c4a6e; --dr-msg: #ffffff;
+      --text-dark: #1a1a1a; --text-mid: #555; --text-light: #999;
+      --border: #e0d8ce; --shadow: 0 4px 24px rgba(0,0,0,0.10); --radius: 18px;
     }
     html, body { height: 100%; font-family: 'Inter', sans-serif; background: var(--chat-bg); color: var(--text-dark); }
     .app { display: flex; height: 100vh; overflow: hidden; }
 
     /* SIDEBAR */
-    .sidebar {
-      width: 290px; min-width: 250px; background: var(--sidebar-bg);
-      display: flex; flex-direction: column; align-items: center;
-      padding: 40px 24px 32px;
-    }
+    .sidebar { width: 290px; min-width: 250px; background: var(--sidebar-bg); display: flex; flex-direction: column; align-items: center; padding: 40px 24px 32px; }
     .sidebar-logo { font-family: 'Playfair Display', serif; font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); margin-bottom: 36px; opacity: 0.85; }
     .portrait-wrap { width: 155px; height: 155px; border-radius: 50%; overflow: hidden; border: 3px solid var(--accent); box-shadow: 0 0 0 6px rgba(201,169,110,0.15); margin-bottom: 22px; background: #2c3545; flex-shrink: 0; }
     .portrait-wrap svg { width: 100%; height: 100%; }
@@ -43,10 +32,11 @@
 
     /* CHAT */
     .chat-area { flex: 1; display: flex; flex-direction: column; min-width: 0; }
-    .chat-header { padding: 18px 32px; border-bottom: 1px solid var(--border); background: rgba(245,240,234,0.95); backdrop-filter: blur(8px); display: flex; align-items: center; gap: 12px; }
-    .chat-header-dot { width: 9px; height: 9px; border-radius: 50%; background: #4caf7d; box-shadow: 0 0 0 3px rgba(76,175,125,0.2); }
+    .chat-header { padding: 18px 32px; border-bottom: 1px solid var(--border); background: rgba(245,240,234,0.95); display: flex; align-items: center; gap: 12px; }
+    .chat-header-dot { width: 9px; height: 9px; border-radius: 50%; background: #4caf7d; box-shadow: 0 0 0 3px rgba(76,175,125,0.2); transition: background 0.4s; }
     .chat-header-text { font-size: 13px; color: var(--text-mid); }
     .chat-header-text strong { color: var(--text-dark); font-weight: 500; }
+    .chat-header-status { font-size: 12px; color: var(--text-light); transition: opacity 0.3s; }
 
     .chat-messages { flex: 1; overflow-y: auto; padding: 32px 32px 16px; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
     .chat-messages::-webkit-scrollbar { width: 4px; }
@@ -59,20 +49,58 @@
 
     .msg-avatar { width: 34px; height: 34px; border-radius: 50%; overflow: hidden; flex-shrink: 0; margin-top: 2px; }
     .msg-avatar.dr-avatar { border: 1.5px solid var(--accent); }
-    .msg-avatar.user-avatar { background: var(--user-msg); display: flex; align-items: center; justify-content: center; color: white; font-size: 14px; font-weight: 500; }
+    .msg-avatar.user-avatar { background: var(--user-msg); display: flex; align-items: center; justify-content: center; color: white; font-size: 13px; font-weight: 500; }
 
     .msg-bubble { padding: 14px 18px; border-radius: var(--radius); font-size: 14.5px; line-height: 1.72; box-shadow: var(--shadow); }
     .msg.dr .msg-bubble { background: var(--dr-msg); color: var(--text-dark); border-bottom-left-radius: 4px; }
     .msg.user .msg-bubble { background: var(--user-msg); color: #fff; border-bottom-right-radius: 4px; }
 
+    /* WHATSAPP-STYLE TYPING INDICATOR */
     .typing { display: flex; gap: 12px; align-self: flex-start; animation: fadeIn 0.3s ease; }
-    .typing-dots { background: var(--dr-msg); padding: 14px 18px; border-radius: var(--radius); border-bottom-left-radius: 4px; box-shadow: var(--shadow); display: flex; gap: 5px; align-items: center; }
-    .typing-dots span { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: bounce 1.2s infinite; }
-    .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
-    .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
-    @keyframes bounce { 0%,60%,100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-6px); opacity: 1; } }
+    .typing-bubble {
+      background: var(--dr-msg);
+      padding: 14px 18px;
+      border-radius: var(--radius);
+      border-bottom-left-radius: 4px;
+      box-shadow: var(--shadow);
+      display: flex;
+      gap: 5px;
+      align-items: center;
+      min-height: 48px;
+    }
+    .typing-bubble span {
+      display: block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #b0a898;
+      animation: waDot 1.4s ease-in-out infinite;
+    }
+    .typing-bubble span:nth-child(1) { animation-delay: 0s; }
+    .typing-bubble span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-bubble span:nth-child(3) { animation-delay: 0.4s; }
 
-    .chat-input-wrap { padding: 14px 32px 22px; background: rgba(245,240,234,0.95); backdrop-filter: blur(8px); border-top: 1px solid var(--border); }
+    @keyframes waDot {
+      0%   { transform: translateY(0);   opacity: 0.4; }
+      25%  { transform: translateY(-6px); opacity: 1;   }
+      50%  { transform: translateY(0);   opacity: 0.4; }
+      100% { transform: translateY(0);   opacity: 0.4; }
+    }
+
+    /* Cursor blink in typewriter */
+    .typing-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1em;
+      background: var(--accent);
+      margin-left: 1px;
+      vertical-align: text-bottom;
+      animation: blink 0.7s step-end infinite;
+    }
+    @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+    /* INPUT */
+    .chat-input-wrap { padding: 14px 32px 22px; background: rgba(245,240,234,0.95); border-top: 1px solid var(--border); }
     .chat-input-inner { display: flex; gap: 12px; align-items: flex-end; background: #fff; border: 1.5px solid var(--border); border-radius: 16px; padding: 10px 10px 10px 18px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); transition: border-color 0.2s; }
     .chat-input-inner:focus-within { border-color: var(--accent); }
     .chat-input { flex: 1; border: none; outline: none; resize: none; font-family: 'Inter', sans-serif; font-size: 14.5px; line-height: 1.6; color: var(--text-dark); background: transparent; max-height: 140px; min-height: 24px; }
@@ -85,9 +113,8 @@
 
     @media (max-width: 680px) {
       .sidebar { display: none; }
-      .chat-header { padding: 14px 18px; }
+      .chat-header, .chat-input-wrap { padding: 14px 18px; }
       .chat-messages { padding: 18px 16px 12px; }
-      .chat-input-wrap { padding: 10px 16px 18px; }
       .msg { max-width: 90%; }
     }
   </style>
@@ -110,11 +137,8 @@
         <ellipse cx="115" cy="115" rx="15" ry="20" fill="#bf8a55" opacity="0.3"/>
         <path d="M58,80 Q65,55 80,52 Q100,48 120,52 Q135,55 142,80" fill="#c5c5cc"/>
         <ellipse cx="100" cy="68" rx="42" ry="22" fill="#b8b8c0"/>
-        <path d="M62,78 Q68,58 82,54" stroke="#a8a8b5" stroke-width="1.5" fill="none" opacity="0.6"/>
-        <path d="M138,78 Q132,58 118,54" stroke="#a8a8b5" stroke-width="1.5" fill="none" opacity="0.6"/>
         <ellipse cx="60" cy="100" rx="10" ry="18" fill="#c0c0c8"/>
         <ellipse cx="140" cy="100" rx="10" ry="18" fill="#c0c0c8"/>
-        <path d="M82,88 Q100,85 115,88" stroke="#b07840" stroke-width="0.8" fill="none" opacity="0.3"/>
         <path d="M74,98 Q83,94 92,97" stroke="#909098" stroke-width="2.5" stroke-linecap="round" fill="none"/>
         <path d="M108,97 Q117,94 126,98" stroke="#909098" stroke-width="2.5" stroke-linecap="round" fill="none"/>
         <rect x="72" y="101" width="24" height="16" rx="7" fill="none" stroke="#4a3c28" stroke-width="1.8"/>
@@ -144,15 +168,16 @@
       <span class="tag">BPD</span><span class="tag">ADHD</span><span class="tag">HSP</span>
       <span class="tag">Trauma</span><span class="tag">Jung</span><span class="tag">Rodina</span>
     </div>
-    <div class="sidebar-footer">
-      Podpůrný nástroj pro osobní rozvoj.<br>Není náhradou za klinickou péči.
-    </div>
+    <div class="sidebar-footer">Podpůrný nástroj pro osobní rozvoj.<br>Není náhradou za klinickou péči.</div>
   </aside>
 
   <main class="chat-area">
     <header class="chat-header">
-      <div class="chat-header-dot"></div>
-      <div class="chat-header-text"><strong>Dr. Benjamin</strong> — online</div>
+      <div class="chat-header-dot" id="statusDot"></div>
+      <div>
+        <div class="chat-header-text"><strong>Dr. Benjamin</strong></div>
+        <div class="chat-header-status" id="statusLabel">online</div>
+      </div>
     </header>
     <div class="chat-messages" id="chatMessages"></div>
     <div class="chat-input-wrap">
@@ -171,65 +196,113 @@
   let messages = [];
   let isLoading = false;
 
-  const DR_AVATAR = `<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg">
-    <radialGradient id="bg2" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#3a4558"/><stop offset="100%" stop-color="#1e2330"/></radialGradient>
-    <rect width="200" height="220" fill="url(#bg2)"/>
-    <ellipse cx="100" cy="108" rx="42" ry="48" fill="#c9935f"/>
-    <ellipse cx="100" cy="68" rx="42" ry="22" fill="#c5c5cc"/>
-    <ellipse cx="60" cy="100" rx="10" ry="18" fill="#c0c0c8"/>
-    <ellipse cx="140" cy="100" rx="10" ry="18" fill="#c0c0c8"/>
-    <rect x="72" y="101" width="24" height="16" rx="7" fill="none" stroke="#4a3c28" stroke-width="2"/>
-    <rect x="104" y="101" width="24" height="16" rx="7" fill="none" stroke="#4a3c28" stroke-width="2"/>
-    <line x1="96" y1="108" x2="104" y2="108" stroke="#4a3c28" stroke-width="2"/>
-    <ellipse cx="84" cy="109" rx="4" ry="3.5" fill="#5c3a1a"/>
-    <ellipse cx="116" cy="109" rx="4" ry="3.5" fill="#5c3a1a"/>
-    <path d="M87,140 Q100,148 113,140" stroke="#9a6040" stroke-width="2" stroke-linecap="round" fill="none"/>
-  </svg>`;
+  const DR_AVATAR = '<svg viewBox="0 0 200 220" xmlns="http://www.w3.org/2000/svg"><radialGradient id="ba" cx="50%" cy="40%" r="60%"><stop offset="0%" stop-color="#3a4558"/><stop offset="100%" stop-color="#1e2330"/></radialGradient><rect width="200" height="220" fill="url(#ba)"/><ellipse cx="100" cy="108" rx="42" ry="48" fill="#c9935f"/><ellipse cx="100" cy="68" rx="42" ry="22" fill="#c5c5cc"/><ellipse cx="60" cy="100" rx="10" ry="18" fill="#c0c0c8"/><ellipse cx="140" cy="100" rx="10" ry="18" fill="#c0c0c8"/><rect x="72" y="101" width="24" height="16" rx="7" fill="none" stroke="#4a3c28" stroke-width="2"/><rect x="104" y="101" width="24" height="16" rx="7" fill="none" stroke="#4a3c28" stroke-width="2"/><line x1="96" y1="108" x2="104" y2="108" stroke="#4a3c28" stroke-width="2"/><ellipse cx="84" cy="109" rx="4" ry="3.5" fill="#5c3a1a"/><ellipse cx="116" cy="109" rx="4" ry="3.5" fill="#5c3a1a"/><path d="M87,140 Q100,148 113,140" stroke="#9a6040" stroke-width="2" stroke-linecap="round" fill="none"/></svg>';
 
-  function addMessage(from, text, initials) {
+  function setStatus(label, color) {
+    document.getElementById('statusLabel').textContent = label;
+    document.getElementById('statusDot').style.background = color;
+  }
+
+  // Typewriter effect — píše znak po znaku
+  async function typeText(text, bubbleEl) {
+    const wrap = document.getElementById('chatMessages');
+    // Rychlost: cílíme na 2–5 sekund celkem podle délky
+    const total = text.length;
+    const duration = Math.min(Math.max(total * 28, 800), 5000);
+    const delay = duration / total;
+
+    const cursor = document.createElement('span');
+    cursor.className = 'typing-cursor';
+    bubbleEl.appendChild(cursor);
+
+    for (let i = 0; i < text.length; i++) {
+      cursor.insertAdjacentText('beforebegin', text[i]);
+      wrap.scrollTop = wrap.scrollHeight;
+      await new Promise(r => setTimeout(r, delay));
+    }
+    cursor.remove();
+  }
+
+  // Přidá bublinku Dr. Benjamina a vrátí element obsahu
+  function createDrBubble() {
     const wrap = document.getElementById('chatMessages');
     const div = document.createElement('div');
-    div.className = `msg ${from}`;
-    const avatar = document.createElement('div');
-    avatar.className = 'msg-avatar ' + (from === 'dr' ? 'dr-avatar' : 'user-avatar');
-    avatar.innerHTML = from === 'dr' ? DR_AVATAR : (initials || '?');
+    div.className = 'msg dr';
+    const av = document.createElement('div');
+    av.className = 'msg-avatar dr-avatar';
+    av.innerHTML = DR_AVATAR;
+    const bubble = document.createElement('div');
+    bubble.className = 'msg-bubble';
+    bubble.style.whiteSpace = 'pre-wrap';
+    div.appendChild(av);
+    div.appendChild(bubble);
+    wrap.appendChild(div);
+    wrap.scrollTop = wrap.scrollHeight;
+    return bubble;
+  }
+
+  function addUserMessage(text) {
+    const wrap = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    const av = document.createElement('div');
+    av.className = 'msg-avatar user-avatar';
+    av.textContent = 'Já';
     const bubble = document.createElement('div');
     bubble.className = 'msg-bubble';
     bubble.style.whiteSpace = 'pre-wrap';
     bubble.textContent = text;
-    div.appendChild(avatar);
+    div.appendChild(av);
     div.appendChild(bubble);
     wrap.appendChild(div);
     wrap.scrollTop = wrap.scrollHeight;
   }
 
+  // WhatsApp typing indicator
   let typingEl = null;
   function showTyping() {
     const wrap = document.getElementById('chatMessages');
     typingEl = document.createElement('div');
     typingEl.className = 'typing';
-    const avatar = document.createElement('div');
-    avatar.className = 'msg-avatar dr-avatar';
-    avatar.innerHTML = DR_AVATAR;
-    const dots = document.createElement('div');
-    dots.className = 'typing-dots';
-    dots.innerHTML = '<span></span><span></span><span></span>';
-    typingEl.appendChild(avatar);
-    typingEl.appendChild(dots);
+    const av = document.createElement('div');
+    av.className = 'msg-avatar dr-avatar';
+    av.innerHTML = DR_AVATAR;
+    const bubble = document.createElement('div');
+    bubble.className = 'typing-bubble';
+    bubble.innerHTML = '<span></span><span></span><span></span>';
+    typingEl.appendChild(av);
+    typingEl.appendChild(bubble);
     wrap.appendChild(typingEl);
     wrap.scrollTop = wrap.scrollHeight;
   }
-  function hideTyping() { if (typingEl) { typingEl.remove(); typingEl = null; } }
+  function hideTyping() {
+    if (typingEl) { typingEl.remove(); typingEl = null; }
+  }
 
-  async function callBackend(msgs, isOpening) {
-    const res = await fetch('/api/chat', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ messages: msgs, isOpening })
-    });
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.error || 'Chyba serveru');
-    return data.text;
+  // Fetch s timeoutem + retry
+  async function callBackend(msgs, isOpening, attempt) {
+    attempt = attempt || 1;
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 45000);
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ messages: msgs, isOpening: !!isOpening }),
+        signal: ctrl.signal
+      });
+      clearTimeout(timer);
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Chyba');
+      return data.text;
+    } catch(e) {
+      clearTimeout(timer);
+      if (attempt < 3) {
+        await new Promise(r => setTimeout(r, 5000));
+        return callBackend(msgs, isOpening, attempt + 1);
+      }
+      throw e;
+    }
   }
 
   async function sendMessage() {
@@ -239,26 +312,36 @@
     if (!text) return;
     input.value = '';
     input.style.height = 'auto';
-    addMessage('user', text, 'Já');
+
+    addUserMessage(text);
     messages.push({ role: 'user', content: text });
+
     isLoading = true;
     document.getElementById('sendBtn').disabled = true;
+    setStatus('Dr. Benjamin píše...', '#c9a96e');
     showTyping();
+
     try {
       const reply = await callBackend(messages, false);
       hideTyping();
-      addMessage('dr', reply);
+      // Zobraz bublinku a piš do ní znak po znaku
+      const bubble = createDrBubble();
+      await typeText(reply, bubble);
       messages.push({ role: 'assistant', content: reply });
-    } catch (e) {
+      setStatus('online', '#4caf7d');
+    } catch(e) {
       hideTyping();
-      addMessage('dr', 'Omlouvám se, momentálně se nemohu připojit. Zkuste to za chvíli.');
+      const bubble = createDrBubble();
+      bubble.textContent = 'Teď se nemohu připojit. Zkuste napsat znovu za chvíli.';
+      setStatus('offline', '#e53935');
     }
+
     isLoading = false;
     document.getElementById('sendBtn').disabled = false;
     input.focus();
   }
 
-  // Auto-resize textarea
+  // Input
   document.getElementById('chatInput').addEventListener('input', function() {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 140) + 'px';
@@ -267,18 +350,24 @@
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
   });
 
-  // Dr. Benjamin opens first
+  // Opening
   window.addEventListener('load', async () => {
+    setStatus('Dr. Benjamin píše...', '#c9a96e');
     showTyping();
     try {
-      const opening = await callBackend([{ role: 'user', content: '(nový uživatel se právě připojil)' }], true);
+      const text = await callBackend([{ role: 'user', content: 'Zacni.' }], true);
       hideTyping();
-      addMessage('dr', opening);
-      messages.push({ role: 'assistant', content: opening });
+      const bubble = createDrBubble();
+      await typeText(text, bubble);
+      messages.push({ role: 'assistant', content: text });
+      setStatus('online', '#4caf7d');
     } catch(e) {
       hideTyping();
-      addMessage('dr', 'Ahoj. Rád tě tu vidím. Jak se máš teď — ne obecně, teď tenhle moment?');
-      messages.push({ role: 'assistant', content: 'Ahoj. Rád tě tu vidím. Jak se máš teď — ne obecně, teď tenhle moment?' });
+      const fb = 'Ahoj. Rád tě tu vidím. Jak se máš teď — ne obecně, teď tenhle moment?';
+      const bubble = createDrBubble();
+      await typeText(fb, bubble);
+      messages.push({ role: 'assistant', content: fb });
+      setStatus('online', '#4caf7d');
     }
   });
 </script>
